@@ -721,9 +721,9 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
 }
 #chat-launcher .suai-launcher-avatar {
   width: 52px; height: 52px; border-radius: 14px;
-  background-image: url('./suai-character.jpg');
-  background-size: 800px 700px;
-  background-position: -415px -112px;
+  background-image: url('./src/assets/suai/suai_avatar.png');
+  background-size: contain;
+  background-position: center;
   background-repeat: no-repeat;
   border: 1.5px solid rgba(255,255,255,0.4);
   box-shadow: 0 2px 8px rgba(0,0,0,0.3);
@@ -785,9 +785,10 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
 }
 .chat-head .suai-head-avatar {
   width: 44px; height: 44px; border-radius: 12px;
-  background-image: url('./suai-character.jpg');
-  background-size: 700px 600px;
-  background-position: -363px -98px;
+  background-image: url('./src/assets/suai/suai_avatar.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1.5px solid var(--suai-purple-light);
   box-shadow: 0 0 10px var(--suai-purple-glow); flex-shrink: 0;
   position: relative;
@@ -855,16 +856,17 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
   display: flex; flex-direction: column; align-items: center;
 }
 .suai-character-card .suai-character-stage {
-  width: 140px; height: 160px; position: relative; margin-bottom: 8px;
+  width: 150px; height: 170px; position: relative; margin-bottom: 8px;
   display: flex; align-items: center; justify-content: center;
 }
 .suai-character-card .suai-character-img {
-  width: 130px; height: 155px; border-radius: 16px;
-  background-image: url('./suai-character.jpg');
-  background-size: 850px 720px;
-  background-position: -20px -5px;
+  width: 140px; height: 165px; border-radius: 16px;
+  background-image: url('./src/assets/suai/suai_idle.png');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
   transition: all 0.4s ease;
-  filter: drop-shadow(0 6px 15px rgba(124, 58, 237, 0.4));
+  filter: drop-shadow(0 6px 15px rgba(124, 58, 237, 0.45));
   animation: suaiBobbing 3.5s ease-in-out infinite;
 }
 @keyframes suaiBobbing {
@@ -872,32 +874,33 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
   50% { transform: translateY(-8px); }
 }
 
-/* Character Poses / Expressions CSS Mapping from suai-character.jpg */
+/* Character Poses / Expressions CSS Mapping to Clean Transparent PNG Assets */
 .suai-character-card[data-state="thinking"] .suai-character-img {
-  background-position: -462px -212px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_thinking.png');
   animation: suaiThinkingTilt 2s infinite ease-in-out;
 }
 .suai-character-card[data-state="searching"] .suai-character-img {
-  background-position: -740px -212px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_searching.png');
 }
 .suai-character-card[data-state="typing"] .suai-character-img {
-  background-position: -430px -350px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_searching.png');
 }
 .suai-character-card[data-state="answering"] .suai-character-img {
-  background-position: -545px -350px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_excited.png');
 }
 .suai-character-card[data-state="excited"] .suai-character-img {
-  background-position: -555px -212px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_excited.png');
 }
 .suai-character-card[data-state="confused"] .suai-character-img {
-  background-position: -650px -212px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_thinking.png');
 }
 .suai-character-card[data-state="success"] .suai-character-img {
-  background-position: -750px -350px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_excited.png');
 }
 .suai-character-card[data-state="greeting"] .suai-character-img {
-  background-position: -360px -212px; background-size: 850px 720px;
+  background-image: url('./src/assets/suai/suai_idle.png');
 }
+
 
 @keyframes suaiThinkingTilt {
   0%, 100% { transform: rotate(0deg) translateY(0); }
@@ -980,8 +983,8 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
 }
 .msg.bot .bot-mini-avatar {
   width: 22px; height: 22px; border-radius: 6px;
-  background-image: url('./suai-character.jpg');
-  background-size: 400px 350px; background-position: -207px -56px;
+  background-image: url('./src/assets/suai/suai_avatar.png');
+  background-size: contain; background-position: center; background-repeat: no-repeat;
   border: 1px solid var(--suai-purple-light);
 }
 .msg.bot .bot-name { font-size: 11px; font-weight: 800; color: var(--suai-purple-light); }
@@ -996,8 +999,8 @@ h1,h2,h3,h4,h5,h6 { font-family: 'Roboto', sans-serif; }
 }
 .suai-state-indicator .indicator-avatar {
   width: 28px; height: 28px; border-radius: 8px;
-  background-image: url('./suai-character.jpg');
-  background-size: 500px 420px; background-position: -258px -70px;
+  background-image: url('./src/assets/suai/suai_avatar.png');
+  background-size: contain; background-position: center; background-repeat: no-repeat;
   border: 1px solid var(--suai-purple-light);
 }
 .suai-state-indicator .indicator-text {
