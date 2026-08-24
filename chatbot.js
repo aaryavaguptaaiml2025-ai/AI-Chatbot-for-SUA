@@ -68,21 +68,171 @@ import wavingImg from './assets/mascot/waving.jpg';
 
     /**
      * Initialize the chatbot.
-     * Preprocesses images to remove baked-in backgrounds,
-     * then injects HTML and sets up the widget.
+     * Preprocesses images, injects HTML, and runs the first-load intro.
      */
     init: async function () {
-      // Remove white/grey backgrounds from JPG assets before rendering
       await this.preprocessImages();
 
       this.injectHTML();
       this.cacheElements();
       this.setupEventListeners();
 
+      // Determine if this is first load in the session
+      const introPlayed = sessionStorage.getItem('suai-intro-done');
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      if (!introPlayed && !prefersReducedMotion) {
+        // Hide tooltip during intro
+        this.elements.tooltip.style.display = 'none';
+        await this.playIntroSequence();
+        sessionStorage.setItem('suai-intro-done', '1');
+      } else {
+        // Skip intro — just show mascot normally
+        if (!introPlayed) sessionStorage.setItem('suai-intro-done', '1');
+      }
+
       // Initial welcome message
       setTimeout(() => {
         this.addMessage("Hey! 👋 I'm SUAi, your university AI assistant. How can I help you today?", 'bot');
       }, 500);
+    },
+
+    /**
+     * First-load mascot introduction animation.
+     * Mascot pops in at center, shows speech bubble, holds,
+     * then smoothly slides to its bottom-right resting position.
+     */
+    playIntroSequence: function () {
+      return new Promise((resolve) => {
+        const btn = this.elements.mascotBtn;
+        const btnRect = btn.getBoundingClientRect();
+
+        // Calculate transform to move mascot from its final position to viewport center
+        const vpW = window.innerWidth;
+        const vpH = window.innerHeight;
+        const centerX = vpW / 2 - btnRect.width / 2;
+        const centerY = vpH / 2 - btnRect.height / 2;
+        const currentX = btnRect.left;
+        const currentY = btnRect.top;
+        const dx = centerX - currentX;
+        const dy = centerY - currentY;
+
+        // Store the translate as a CSS custom property for the keyframe
+        btn.style.setProperty('--suai-intro-translate', `translate(${dx}px, ${dy}px)`);
+
+        // Set emotion to waving for the intro
+        this._crossfadeMascot(this.emotions.waving);
+        this.state.emotion = 'waving';
+
+        // STEP 1: Hide mascot initially
+        btn.classList.add('suai-intro-hidden');
+
+        // STEP 2: After short delay, pop in at center (300ms)
+        setTimeout(() => {
+          btn.classList.remove('suai-intro-hidden');
+          btn.classList.add('suai-intro-center');
+          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+          btn.style.opacity = '0';
+
+          // Trigger pop animation
+          requestAnimationFrame(() => {
+            btn.classList.remove('suai-intro-center');
+            btn.classList.add('suai-intro-pop');
+          });
+        }, 400);
+
+        // STEP 3: After pop finishes (~600ms), show speech bubble
+        setTimeout(() => {
+          this.showIntroBubble(centerX, centerY, btn.offsetWidth);
+        }, 1100);
+
+        // STEP 4: Switch to happy emotion mid-intro
+        setTimeout(() => {
+          this._crossfadeMascot(this.emotions.happy);
+          this.state.emotion = 'happy';
+        }, 1800);
+
+        // STEP 5: Start slide to final position (after ~2.3s total hold)
+        setTimeout(() => {
+          // Fade out speech bubble
+          this.hideIntroBubble();
+
+          // Prepare for smooth slide
+          btn.classList.remove('suai-intro-pop');
+          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+          btn.style.opacity = '1';
+
+          requestAnimationFrame(() => {
+            btn.classList.add('suai-intro-settle');
+
+            requestAnimationFrame(() => {
+              // Slide to final position (transform: none)
+              btn.style.transform = 'translate(0, 0)';
+            });
+          });
+        }, 2800);
+
+        // STEP 6: Cleanup after slide completes (~900ms transition)
+        setTimeout(() => {
+          btn.classList.remove('suai-intro-settle');
+          btn.style.transform = '';
+          btn.style.opacity = '';
+          btn.style.removeProperty('--suai-intro-translate');
+
+          // Switch to idle and resume normal behavior
+          this._crossfadeMascot(this.emotions.idle);
+          this.state.emotion = 'idle';
+
+          // Show tooltip
+          this.elements.tooltip.style.display = '';
+
+          resolve();
+        }, 3800);
+      });
+    },
+
+    /**
+     * Show the intro speech bubble near the centered mascot.
+     */
+    showIntroBubble: function (mascotCenterX, mascotCenterY, mascotWidth) {
+      const bubble = document.createElement('div');
+      bubble.id = 'suai-intro-bubble';
+      bubble.innerHTML = `
+        <span class="suai-bubble-line">Hey! 👋 I'm SUAi.</span>
+        <span class="suai-bubble-line">Your university AI assistant.</span>
+      `;
+      document.body.appendChild(bubble);
+
+      // Position above the centered mascot
+      const bubbleRect = bubble.getBoundingClientRect();
+      const left = mascotCenterX + mascotWidth / 2 - bubbleRect.width / 2;
+      const top = mascotCenterY - bubbleRect.height - 12;
+
+      bubble.style.left = left + 'px';
+      bubble.style.top = top + 'px';
+
+      // Trigger fade-in
+      requestAnimationFrame(() => {
+        bubble.classList.add('suai-bubble-visible');
+      });
+
+      this._introBubble = bubble;
+    },
+
+    /**
+     * Fade out and remove the intro speech bubble.
+     */
+    hideIntroBubble: function () {
+      const bubble = this._introBubble;
+      if (!bubble) return;
+
+      bubble.classList.remove('suai-bubble-visible');
+      bubble.classList.add('suai-bubble-fade');
+
+      setTimeout(() => {
+        if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+        this._introBubble = null;
+      }, 400);
     },
 
     // ─── Image Preprocessing ─────────────────────────────────

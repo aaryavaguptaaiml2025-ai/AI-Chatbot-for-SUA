@@ -32,6 +32,87 @@
           drop-shadow(0 1px 4px rgba(35, 57, 76, 0.18));
 }
 
+/* ── First-Load Intro States ──────────────────────────── */
+
+/* Hidden before intro starts */
+#suai-mascot-btn.suai-intro-hidden {
+  opacity: 0;
+  pointer-events: none;
+  animation: none;
+}
+
+/* Centered on screen during intro */
+#suai-mascot-btn.suai-intro-center {
+  animation: none;
+  pointer-events: none;
+  transition: none;
+}
+
+/* Pop-in entrance */
+#suai-mascot-btn.suai-intro-pop {
+  animation: suaiIntroPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  pointer-events: none;
+}
+
+/* Slide to final position */
+#suai-mascot-btn.suai-intro-settle {
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.15, 1),
+              filter 0.9s ease;
+  animation: none;
+  pointer-events: none;
+}
+
+/* Hide pulse ring during intro */
+#suai-mascot-btn.suai-intro-hidden::before,
+#suai-mascot-btn.suai-intro-center::before,
+#suai-mascot-btn.suai-intro-pop::before,
+#suai-mascot-btn.suai-intro-settle::before {
+  display: none;
+}
+
+/* ── Intro Speech Bubble ──────────────────────────────── */
+#suai-intro-bubble {
+  position: fixed;
+  z-index: 10000;
+  background: #fff;
+  color: var(--navy, #23394c);
+  font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  padding: 12px 18px;
+  border-radius: 14px;
+  box-shadow: 0 4px 20px rgba(35, 57, 76, 0.15),
+              0 1px 4px rgba(0, 0, 0, 0.08);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  white-space: nowrap;
+  text-align: center;
+}
+
+#suai-intro-bubble.suai-bubble-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#suai-intro-bubble.suai-bubble-fade {
+  opacity: 0;
+  transform: translateY(-4px) scale(0.95);
+}
+
+#suai-intro-bubble .suai-bubble-line {
+  display: block;
+}
+
+#suai-intro-bubble .suai-bubble-line:last-child {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.7;
+  margin-top: 2px;
+}
+
 /* Pulsing attention ring behind the mascot */
 #suai-mascot-btn::before {
   content: '';
@@ -627,6 +708,14 @@
   50%      { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
 }
 
+/* Intro pop entrance */
+@keyframes suaiIntroPop {
+  0%   { opacity: 0; transform: var(--suai-intro-translate) scale(0.7); }
+  60%  { opacity: 1; transform: var(--suai-intro-translate) scale(1.05); }
+  80%  { transform: var(--suai-intro-translate) scale(0.98); }
+  100% { opacity: 1; transform: var(--suai-intro-translate) scale(1); }
+}
+
 /* ── Responsive — Tablet ───────────────────────────────── */
 @media (max-width: 768px) {
   #suai-chat-panel {
@@ -709,5 +798,20 @@
   #suai-mascot-btn .suai-mascot-img-wrapper img,
   .suai-header-avatar img {
     transition-duration: 0.01ms !important;
+  }
+
+  /* Intro: skip animation, just fade in at final position */
+  #suai-mascot-btn.suai-intro-pop {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  #suai-mascot-btn.suai-intro-settle {
+    transition-duration: 0.01ms !important;
+  }
+
+  #suai-intro-bubble {
+    display: none !important;
   }
 }
