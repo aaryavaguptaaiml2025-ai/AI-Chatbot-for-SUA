@@ -1,3 +1,10 @@
+import idleImg from './assets/mascot/idle.jpg';
+import thinkingImg from './assets/mascot/thinking.jpg';
+import celebratingImg from './assets/mascot/celebrating.jpg';
+import confusedImg from './assets/mascot/confused.jpg';
+import calmImg from './assets/mascot/calm.jpg';
+import wavingImg from './assets/mascot/waving.jpg';
+
 /**
  * SUAi Chatbot - UI Prototype
  * Handles the frontend logic, state management, and interactions
@@ -16,13 +23,13 @@
       idleTimer: null
     },
     emotions: {
-      idle: 'assets/mascot/idle.jpg',
-      thinking: 'assets/mascot/thinking.jpg',
-      happy: 'assets/mascot/celebrating.jpg',
-      celebrating: 'assets/mascot/celebrating.jpg',
-      confused: 'assets/mascot/confused.jpg',
-      calm: 'assets/mascot/calm.jpg',
-      waving: 'assets/mascot/waving.jpg'
+      idle: idleImg,
+      thinking: thinkingImg,
+      happy: celebratingImg,
+      celebrating: celebratingImg,
+      confused: confusedImg,
+      calm: calmImg,
+      waving: wavingImg
     },
     mockResponses: [
       "I'm still learning! Real AI responses are coming soon. 🚀",
