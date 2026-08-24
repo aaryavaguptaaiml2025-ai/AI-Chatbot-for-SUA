@@ -1,0 +1,535 @@
+/* ==========================================================
+   SUAi Chatbot Widget — Stylesheet
+   Inherits site design system variables from :root
+   ========================================================== */
+
+/* ── Floating Mascot Button ────────────────────────────── */
+#suai-chatbot-container {
+  font-family: 'Roboto', 'Open Sans', Arial, sans-serif;
+}
+
+#suai-mascot-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2.5px solid var(--navy);
+  background: #fff;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  box-shadow:
+    0 4px 16px rgba(35, 57, 76, 0.18),
+    0 0 0 0 rgba(35, 57, 76, 0);
+  animation: suaiFloat 3s ease-in-out infinite;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  outline: none;
+}
+
+#suai-mascot-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+#suai-mascot-btn:hover {
+  transform: scale(1.08);
+  box-shadow:
+    0 6px 24px rgba(35, 57, 76, 0.25),
+    0 0 0 4px rgba(35, 57, 76, 0.08);
+}
+
+#suai-mascot-btn:active {
+  transform: scale(0.95);
+}
+
+#suai-mascot-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 3px;
+}
+
+/* Active ring when chat is open */
+#suai-mascot-btn[aria-expanded="true"] {
+  box-shadow:
+    0 4px 16px rgba(35, 57, 76, 0.18),
+    0 0 0 3px rgba(23, 162, 160, 0.35);
+  animation: none;
+}
+
+/* ── Tooltip ───────────────────────────────────────────── */
+#suai-tooltip {
+  position: fixed;
+  bottom: 104px;
+  right: 26px;
+  z-index: 9999;
+  background: var(--navy);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  box-shadow: 0 3px 12px rgba(35, 57, 76, 0.2);
+  animation: suaiTooltipFade 0.4s ease 2.5s both;
+  pointer-events: none;
+  letter-spacing: 0.01em;
+}
+
+#suai-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  right: 28px;
+  width: 10px;
+  height: 10px;
+  background: var(--navy);
+  transform: rotate(45deg);
+  border-radius: 0 0 2px 0;
+}
+
+/* ── Chat Panel ────────────────────────────────────────── */
+#suai-chat-panel {
+  position: fixed;
+  bottom: 104px;
+  right: 24px;
+  z-index: 9998;
+  width: 390px;
+  height: 580px;
+  max-height: 70vh;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.15),
+    0 2px 8px rgba(0, 0, 0, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform-origin: bottom right;
+
+  /* Closed state */
+  opacity: 0;
+  transform: scale(0.85) translateY(20px);
+  pointer-events: none;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+#suai-chat-panel.suai-panel-open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  pointer-events: auto;
+}
+
+/* ── Chat Header ───────────────────────────────────────── */
+#suai-chat-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.suai-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  overflow: hidden;
+  flex-shrink: 0;
+  background: #fff;
+}
+
+.suai-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.suai-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.suai-header-title {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.suai-header-subtitle {
+  font-size: 11px;
+  opacity: 0.78;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.suai-status-dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #4caf50;
+  animation: suaiPulse 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.suai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.suai-header-actions button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  outline: none;
+}
+
+.suai-header-actions button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.suai-header-actions button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 1px;
+}
+
+/* ── Messages Area ─────────────────────────────────────── */
+#suai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-alt);
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+#suai-messages::-webkit-scrollbar {
+  width: 4px;
+}
+#suai-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+#suai-messages::-webkit-scrollbar-thumb {
+  background: rgba(35, 57, 76, 0.25);
+  border-radius: 4px;
+}
+#suai-messages::-webkit-scrollbar-thumb:hover {
+  background: rgba(35, 57, 76, 0.4);
+}
+
+/* ── Message Bubbles ───────────────────────────────────── */
+.suai-message-wrapper {
+  display: flex;
+  max-width: 85%;
+}
+
+.suai-message-wrapper.suai-message-bot {
+  align-self: flex-start;
+}
+
+.suai-message-wrapper.suai-message-user {
+  align-self: flex-end;
+}
+
+.suai-message {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.suai-message.suai-animate-in {
+  animation: suaiFadeSlideIn 0.3s ease both;
+}
+
+/* Bot avatar */
+.suai-message-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-top: 2px;
+  border: 1.5px solid var(--line);
+  background: #fff;
+}
+
+.suai-message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Message content bubble */
+.suai-message-content {
+  padding: 10px 14px;
+  font-size: 13.5px;
+  line-height: 1.55;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Bot bubbles */
+.suai-message-bot .suai-message-content {
+  background: #fff;
+  color: var(--text);
+  border-radius: 2px 14px 14px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+/* User bubbles */
+.suai-message-user .suai-message {
+  flex-direction: row-reverse;
+}
+
+.suai-message-user .suai-message-content {
+  background: var(--navy);
+  color: #fff;
+  border-radius: 14px 2px 14px 14px;
+}
+
+/* ── Quick Action Buttons ──────────────────────────────── */
+#suai-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px 14px;
+  background: var(--bg-alt);
+}
+
+#suai-quick-actions.suai-hidden {
+  display: none;
+}
+
+.suai-quick-btn {
+  background: #fff;
+  border: 1.5px solid var(--line);
+  border-radius: 20px;
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--navy);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  outline: none;
+  white-space: nowrap;
+}
+
+.suai-quick-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+  box-shadow: 0 2px 8px rgba(23, 162, 160, 0.12);
+}
+
+.suai-quick-btn:active {
+  transform: scale(0.96);
+}
+
+.suai-quick-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 1px;
+}
+
+/* ── Chat Input Area ───────────────────────────────────── */
+#suai-input-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid var(--line);
+  flex-shrink: 0;
+}
+
+#suai-input {
+  flex: 1;
+  border: 1.5px solid var(--line);
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  color: var(--text);
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+#suai-input:focus {
+  border-color: var(--teal);
+}
+
+#suai-input::placeholder {
+  color: var(--text-faint);
+}
+
+#suai-send-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: var(--navy);
+  color: #fff;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  outline: none;
+}
+
+#suai-send-btn:hover {
+  background: var(--teal);
+}
+
+#suai-send-btn:active {
+  transform: scale(0.9);
+}
+
+#suai-send-btn:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
+#suai-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Emotion Transition ────────────────────────────────── */
+.suai-emotion-change {
+  animation: suaiEmotionSwap 0.3s ease both;
+}
+
+/* ── Typing Indicator ──────────────────────────────────── */
+.suai-typing-bubble {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 12px 18px !important;
+  min-width: 60px;
+}
+
+.suai-typing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--navy);
+  opacity: 0.35;
+  animation: suaiDotBounce 1.4s ease-in-out infinite;
+}
+
+.suai-typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.suai-typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ── Keyframe Animations ───────────────────────────────── */
+@keyframes suaiFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-4px); }
+}
+
+@keyframes suaiFadeSlideIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes suaiDotBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
+  40%           { transform: scale(1);   opacity: 1; }
+}
+
+@keyframes suaiPulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+
+@keyframes suaiTooltipFade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes suaiEmotionSwap {
+  0%   { transform: scale(0.88); opacity: 0.6; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+/* ── Responsive — Tablet ───────────────────────────────── */
+@media (max-width: 768px) {
+  #suai-chat-panel {
+    width: calc(100vw - 32px);
+    right: 16px;
+  }
+}
+
+/* ── Responsive — Mobile ───────────────────────────────── */
+@media (max-width: 480px) {
+  #suai-mascot-btn {
+    width: 60px;
+    height: 60px;
+    bottom: 16px;
+    right: 16px;
+  }
+
+  #suai-tooltip {
+    display: none;
+  }
+
+  #suai-chat-panel {
+    width: calc(100vw - 16px);
+    right: 8px;
+    bottom: 84px;
+    height: calc(100vh - 120px);
+    max-height: none;
+    border-radius: 12px;
+  }
+
+  .suai-quick-btn {
+    font-size: 11.5px;
+    padding: 6px 12px;
+  }
+}
+
+/* ── Reduced Motion ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #suai-mascot-btn,
+  #suai-chat-panel,
+  .suai-message.suai-animate-in,
+  .suai-typing-dot,
+  .suai-status-dot,
+  #suai-tooltip,
+  .suai-emotion-change {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+}
