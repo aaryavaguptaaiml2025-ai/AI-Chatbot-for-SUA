@@ -131,7 +131,7 @@ import wavingImg from './assets/mascot/waving.jpg';
         setTimeout(() => {
           btn.classList.remove('suai-intro-hidden');
           btn.classList.add('suai-intro-center');
-          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+          btn.style.transform = `translate(${dx}px, ${dy}px) scale(1.6)`;
           btn.style.opacity = '0';
 
           // Trigger pop animation
@@ -159,7 +159,7 @@ import wavingImg from './assets/mascot/waving.jpg';
 
           // Prepare for smooth slide
           btn.classList.remove('suai-intro-pop');
-          btn.style.transform = `translate(${dx}px, ${dy}px)`;
+          btn.style.transform = `translate(${dx}px, ${dy}px) scale(1.6)`;
           btn.style.opacity = '1';
 
           requestAnimationFrame(() => {
@@ -167,7 +167,7 @@ import wavingImg from './assets/mascot/waving.jpg';
 
             requestAnimationFrame(() => {
               // Slide to final position (transform: none)
-              btn.style.transform = 'translate(0, 0)';
+              btn.style.transform = 'translate(0, 0) scale(1)';
             });
           });
         }, 2800);

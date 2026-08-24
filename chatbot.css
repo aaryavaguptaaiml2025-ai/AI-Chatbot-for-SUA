@@ -54,10 +54,9 @@
   pointer-events: none;
 }
 
-/* Slide to final position */
+/* Slide to final position (large → regular size) */
 #suai-mascot-btn.suai-intro-settle {
-  transition: transform 0.9s cubic-bezier(0.4, 0, 0.15, 1),
-              filter 0.9s ease;
+  transition: transform 0.9s cubic-bezier(0.4, 0, 0.15, 1);
   animation: none;
   pointer-events: none;
 }
@@ -708,12 +707,12 @@
   50%      { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
 }
 
-/* Intro pop entrance */
+/* Intro pop entrance — mascot appears large at center */
 @keyframes suaiIntroPop {
-  0%   { opacity: 0; transform: var(--suai-intro-translate) scale(0.7); }
-  60%  { opacity: 1; transform: var(--suai-intro-translate) scale(1.05); }
-  80%  { transform: var(--suai-intro-translate) scale(0.98); }
-  100% { opacity: 1; transform: var(--suai-intro-translate) scale(1); }
+  0%   { opacity: 0; transform: var(--suai-intro-translate) scale(1.1); }
+  60%  { opacity: 1; transform: var(--suai-intro-translate) scale(1.7); }
+  80%  { transform: var(--suai-intro-translate) scale(1.55); }
+  100% { opacity: 1; transform: var(--suai-intro-translate) scale(1.6); }
 }
 
 /* ── Responsive — Tablet ───────────────────────────────── */
