@@ -15,37 +15,54 @@
   z-index: 9999;
   width: 72px;
   height: 72px;
-  border-radius: 50%;
-  border: 2.5px solid var(--navy);
-  background: #fff;
-  padding: 0;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  padding: 4px;
   cursor: pointer;
-  overflow: hidden;
-  box-shadow:
-    0 4px 16px rgba(35, 57, 76, 0.18),
-    0 0 0 0 rgba(35, 57, 76, 0);
+  overflow: visible;
+  box-shadow: none;
   animation: suaiFloat 3s ease-in-out infinite;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1),
+              filter 0.22s ease;
   outline: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-#suai-mascot-btn img {
+/* Mascot image inside floating button — transparent sticker */
+#suai-mascot-btn .suai-mascot-img-wrapper {
+  position: relative;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+}
+
+#suai-mascot-btn .suai-mascot-img-wrapper img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   display: block;
-  transition: transform 0.3s ease;
+  transition: opacity 0.25s ease-out;
+  pointer-events: none;
+}
+
+#suai-mascot-btn .suai-mascot-img-wrapper img.suai-img-hidden {
+  opacity: 0;
+}
+
+#suai-mascot-btn .suai-mascot-img-wrapper img.suai-img-visible {
+  opacity: 1;
 }
 
 #suai-mascot-btn:hover {
-  transform: scale(1.08);
-  box-shadow:
-    0 6px 24px rgba(35, 57, 76, 0.25),
-    0 0 0 4px rgba(35, 57, 76, 0.08);
+  transform: scale(1.04) translateY(-3px);
+  filter: drop-shadow(0 4px 12px rgba(35, 57, 76, 0.2));
 }
 
 #suai-mascot-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.96);
 }
 
 #suai-mascot-btn:focus-visible {
@@ -53,12 +70,10 @@
   outline-offset: 3px;
 }
 
-/* Active ring when chat is open */
+/* Active state when chat is open — stop floating */
 #suai-mascot-btn[aria-expanded="true"] {
-  box-shadow:
-    0 4px 16px rgba(35, 57, 76, 0.18),
-    0 0 0 3px rgba(23, 162, 160, 0.35);
   animation: none;
+  filter: drop-shadow(0 2px 8px rgba(23, 162, 160, 0.3));
 }
 
 /* ── Tooltip ───────────────────────────────────────────── */
@@ -115,13 +130,30 @@
   opacity: 0;
   transform: scale(0.85) translateY(20px);
   pointer-events: none;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 #suai-chat-panel.suai-panel-open {
   opacity: 1;
   transform: scale(1) translateY(0);
   pointer-events: auto;
+}
+
+/* Panel content fade-in on open */
+#suai-chat-panel .suai-panel-content {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s ease 0.15s, transform 0.3s ease 0.15s;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+#suai-chat-panel.suai-panel-open .suai-panel-content {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ── Chat Header ───────────────────────────────────────── */
@@ -135,21 +167,40 @@
   flex-shrink: 0;
 }
 
+/* Header avatar — transparent, no white circle */
 .suai-header-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.5);
-  overflow: hidden;
+  width: 42px;
+  height: 42px;
+  border-radius: 0;
+  border: none;
+  overflow: visible;
   flex-shrink: 0;
-  background: #fff;
+  background: transparent;
+  position: relative;
 }
 
 .suai-header-avatar img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
+  transition: opacity 0.25s ease-out;
+}
+
+.suai-header-avatar img.suai-img-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+}
+
+.suai-header-avatar img.suai-img-visible {
+  opacity: 1;
+}
+
+/* Subtle idle animation for header avatar */
+.suai-header-avatar.suai-header-idle img.suai-img-visible {
+  animation: suaiHeaderBreath 3s ease-in-out infinite;
 }
 
 .suai-header-info {
@@ -265,22 +316,22 @@
   animation: suaiFadeSlideIn 0.3s ease both;
 }
 
-/* Bot avatar */
+/* Bot message avatar — transparent, no white circle */
 .suai-message-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  overflow: hidden;
+  width: 34px;
+  height: 34px;
+  border-radius: 0;
+  overflow: visible;
   flex-shrink: 0;
   margin-top: 2px;
-  border: 1.5px solid var(--line);
-  background: #fff;
+  border: none;
+  background: transparent;
 }
 
 .suai-message-avatar img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   display: block;
 }
 
@@ -422,9 +473,31 @@
   cursor: not-allowed;
 }
 
-/* ── Emotion Transition ────────────────────────────────── */
-.suai-emotion-change {
-  animation: suaiEmotionSwap 0.3s ease both;
+/* ── Emotion-Specific Animations ──────────────────────── */
+
+/* Pop animation for click/happy transitions */
+.suai-anim-pop {
+  animation: suaiPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Thinking animation — gentle pulse */
+.suai-anim-thinking {
+  animation: suaiThinkingPulse 1.5s ease-in-out infinite;
+}
+
+/* Celebration animation — scale pop */
+.suai-anim-celebrating {
+  animation: suaiCelebrationPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Confused animation — side-to-side shake */
+.suai-anim-confused {
+  animation: suaiConfusedShake 0.35s ease-out;
+}
+
+/* Meditation animation — slow breathing */
+.suai-anim-meditating {
+  animation: suaiMeditationBreath 3s ease-in-out infinite;
 }
 
 /* ── Typing Indicator ──────────────────────────────────── */
@@ -454,34 +527,78 @@
 }
 
 /* ── Keyframe Animations ───────────────────────────────── */
+
+/* Floating mascot idle breathing */
 @keyframes suaiFloat {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-4px); }
 }
 
+/* Message slide in */
 @keyframes suaiFadeSlideIn {
   from { opacity: 0; transform: translateY(8px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
+/* Typing dots */
 @keyframes suaiDotBounce {
   0%, 80%, 100% { transform: scale(0.6); opacity: 0.3; }
   40%           { transform: scale(1);   opacity: 1; }
 }
 
+/* Status dot pulse */
 @keyframes suaiPulse {
   0%, 100% { opacity: 1; }
   50%      { opacity: 0.45; }
 }
 
+/* Tooltip entrance */
 @keyframes suaiTooltipFade {
   from { opacity: 0; transform: translateY(4px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
-@keyframes suaiEmotionSwap {
-  0%   { transform: scale(0.88); opacity: 0.6; }
-  100% { transform: scale(1);    opacity: 1; }
+/* Click / open pop */
+@keyframes suaiPop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* Thinking gentle vertical pulse */
+@keyframes suaiThinkingPulse {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+/* Celebration pop */
+@keyframes suaiCelebrationPop {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(1.05) translateY(-2px); }
+  60%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+/* Confused side-to-side shake */
+@keyframes suaiConfusedShake {
+  0%   { transform: translateX(0); }
+  20%  { transform: translateX(-2px); }
+  40%  { transform: translateX(2px); }
+  60%  { transform: translateX(-1px); }
+  80%  { transform: translateX(1px); }
+  100% { transform: translateX(0); }
+}
+
+/* Meditation slow breathing */
+@keyframes suaiMeditationBreath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.015); }
+}
+
+/* Header avatar subtle idle breathing */
+@keyframes suaiHeaderBreath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
 }
 
 /* ── Responsive — Tablet ───────────────────────────────── */
@@ -495,8 +612,8 @@
 /* ── Responsive — Mobile ───────────────────────────────── */
 @media (max-width: 480px) {
   #suai-mascot-btn {
-    width: 60px;
-    height: 60px;
+    width: 64px;
+    height: 64px;
     bottom: 16px;
     right: 16px;
   }
@@ -522,14 +639,49 @@
 
 /* ── Reduced Motion ────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
-  #suai-mascot-btn,
-  #suai-chat-panel,
-  .suai-message.suai-animate-in,
-  .suai-typing-dot,
-  .suai-status-dot,
-  #suai-tooltip,
-  .suai-emotion-change {
+  #suai-mascot-btn {
     animation: none !important;
+  }
+
+  #suai-mascot-btn:hover {
+    transform: none !important;
+  }
+
+  #suai-chat-panel {
+    transition-duration: 0.01ms !important;
+  }
+
+  .suai-message.suai-animate-in {
+    animation: none !important;
+  }
+
+  .suai-typing-dot {
+    animation: none !important;
+  }
+
+  .suai-status-dot {
+    animation: none !important;
+  }
+
+  #suai-tooltip {
+    animation: none !important;
+  }
+
+  .suai-anim-pop,
+  .suai-anim-thinking,
+  .suai-anim-celebrating,
+  .suai-anim-confused,
+  .suai-anim-meditating {
+    animation: none !important;
+  }
+
+  .suai-header-avatar.suai-header-idle img.suai-img-visible {
+    animation: none !important;
+  }
+
+  /* Keep emotion image crossfade but make it instant */
+  #suai-mascot-btn .suai-mascot-img-wrapper img,
+  .suai-header-avatar img {
     transition-duration: 0.01ms !important;
   }
 }
