@@ -3,3 +3,10 @@ dist/
 .claude/
 .DS_Store
 Thumbs.db
+
+backend/.env
+backend/chroma_db/
+backend/feedback.json
+backend/__pycache__/
+backend_old/
+*.pyc

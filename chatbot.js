@@ -4,6 +4,7 @@ import celebratingImg from './assets/mascot/celebrating.jpg';
 import confusedImg from './assets/mascot/confused.jpg';
 import calmImg from './assets/mascot/calm.jpg';
 import wavingImg from './assets/mascot/waving.jpg';
+import { getResponse } from './knowledgeBase.js';
 
 /**
  * SUAi Chatbot - UI Prototype
@@ -23,6 +24,7 @@ import wavingImg from './assets/mascot/waving.jpg';
       emotion: 'idle',
       previousEmotion: 'idle',
       messages: [],
+      messageCounter: 0,
       isTyping: false,
       idleTimer: null,
       emotionTimers: [],
@@ -56,13 +58,11 @@ import wavingImg from './assets/mascot/waving.jpg';
       calm: 1
     },
 
-    mockResponses: [
-      "I'm still learning! Real AI responses are coming soon. 🚀",
-      "That's a great question! My AI brain is being connected soon. Stay tuned! 🧠",
-      "I appreciate your curiosity! Full AI responses will be available shortly. ✨",
-      "Hmm, I'm not fully set up yet, but I'll be smart very soon! 😄",
-      "Great question! Once my AI is connected, I'll be able to help with everything about Sharda University! 🎓"
-    ],
+    apiConfig: {
+      chatEndpoint: '/api/chat',
+      feedbackEndpoint: '/api/feedback',
+      maxHistoryMessages: 10
+    },
 
     elements: {},
 
@@ -473,10 +473,10 @@ import wavingImg from './assets/mascot/waving.jpg';
 
             <!-- Quick Actions -->
             <div id="suai-quick-actions">
-              <button class="suai-quick-btn" data-action="find" type="button">🔍 Find something</button>
-              <button class="suai-quick-btn" data-action="info" type="button">🏛️ University info</button>
-              <button class="suai-quick-btn" data-action="academic" type="button">📚 Academic help</button>
-              <button class="suai-quick-btn" data-action="explore" type="button">🧭 Just explore</button>
+              <button class="suai-quick-btn" data-action="about" type="button">🏛️ About Sharda University</button>
+              <button class="suai-quick-btn" data-action="courses" type="button">📚 Courses available</button>
+              <button class="suai-quick-btn" data-action="admissions" type="button">📝 How to apply</button>
+              <button class="suai-quick-btn" data-action="campus" type="button">🏕️ Campus facilities</button>
             </div>
 
             <!-- Input -->
@@ -763,74 +763,271 @@ import wavingImg from './assets/mascot/waving.jpg';
 
     handleSendMessage: function () {
       const text = this.elements.input.value.trim();
-      if (!text) return;
+      if (!text || this.state.isTyping) return;
 
       this.elements.input.value = '';
       this.addMessage(text, 'user');
       this.elements.quickActions.classList.add('suai-hidden');
-      this.showTypingIndicator();
-
-      const delay = Math.floor(Math.random() * 800) + 1200;
-      setTimeout(() => {
-        this.hideTypingIndicator();
-        this.setEmotion('happy');
-        this.triggerMascotAnimation('suai-anim-pop');
-        const resp = this.mockResponses[Math.floor(Math.random() * this.mockResponses.length)];
-        this.addMessage(resp, 'bot');
-        this.scheduleEmotionReturn('idle', 3000);
-      }, delay);
+      this.streamBotResponse(text);
     },
 
     handleQuickAction: function (action, text) {
+      if (this.state.isTyping) return;
       this.elements.quickActions.classList.add('suai-hidden');
-      this.addMessage(text, 'user');
+
+      // Map actions to natural language queries the engine understands
+      const actionMap = {
+        'about': 'Tell me about Sharda University',
+        'courses': 'What courses are available?',
+        'admissions': 'How can I apply for admission?',
+        'campus': 'What facilities are available on campus?'
+      };
+      const query = actionMap[action] || text;
+
+      this.addMessage(query, 'user');
+      this.streamBotResponse(query);
+    },
+
+    // ── Streaming API Integration ─────────────────────────
+
+    /**
+     * Process user message locally using the rule-based knowledge base engine.
+     * No backend server or API required.
+     */
+    streamBotResponse: async function (userMessage) {
       this.showTypingIndicator();
 
-      setTimeout(() => {
+      try {
+        // Build conversation history for context-aware responses
+        const history = this.state.messages.map(m => ({
+          role: m.sender === 'user' ? 'user' : 'assistant',
+          content: m.text
+        }));
+
+        // Get response from local knowledge base engine
+        const result = getResponse(userMessage, history);
+        const fullText = result.reply || '';
+        const suggestions = result.suggestions || [];
+
+        // Simulate a natural typing delay (800ms - 1500ms)
+        const typingDelay = 800 + Math.random() * 700;
+        await new Promise(resolve => setTimeout(resolve, typingDelay));
+
         this.hideTypingIndicator();
+        this.setEmotion('happy');
+        this.triggerMascotAnimation('suai-anim-pop');
 
-        let response = '';
-        let emotionAfter = 'happy';
+        // Create bot message bubble
+        const messageId = 'msg-' + (++this.state.messageCounter);
+        const { contentEl, wrapperEl } = this._createStreamingMessage(messageId);
 
-        switch (action) {
-          case 'find':
-            response = "I can help you search for programs, faculty, facilities, and more! This feature is coming soon. 🔍";
-            emotionAfter = 'confused';
-            break;
-          case 'info':
-            response = "Sharda University Agra offers 40+ programs across Engineering, Pharmacy, Design, Agriculture, Management and more! Students from 95+ countries study on our beautiful 50+ acre campus. 🏛️";
-            emotionAfter = 'celebrating';
-            break;
-          case 'academic':
-            response = "I'll be able to help with course details, exam schedules, academic resources, and more once my AI brain is connected! 📚";
-            emotionAfter = 'happy';
-            break;
-          case 'explore':
-            response = "Welcome to Sharda University Agra! Feel free to explore the website. I'll be here if you need anything! 🧭";
-            emotionAfter = 'meditating';
-            break;
-          default:
-            response = "I'm here to help!";
+        // Render the response
+        contentEl.innerHTML = this.renderMarkdown(fullText);
+        contentEl.classList.add('suai-markdown-content');
+
+        // Store in state
+        this.state.messages.push({ text: fullText, sender: 'bot' });
+
+        // Add feedback buttons
+        this._addFeedbackButtons(wrapperEl, messageId, fullText);
+
+        // Add suggestion pills
+        if (suggestions && suggestions.length > 0) {
+          this._addSuggestionPills(wrapperEl, suggestions);
         }
 
-        this.setEmotion(emotionAfter);
-        if (emotionAfter === 'celebrating') this.triggerMascotAnimation('suai-anim-celebrating');
-        else if (emotionAfter === 'confused') this.triggerMascotAnimation('suai-anim-confused');
-        else this.triggerMascotAnimation('suai-anim-pop');
+        this.scrollToBottom();
+        this.scheduleEmotionReturn('idle', 3000);
 
-        this.addMessage(response, 'bot');
+      } catch (error) {
+        console.error('SUAi: local engine error', error);
+        this.hideTypingIndicator();
+        this.setEmotion('confused');
+        this.triggerMascotAnimation('suai-anim-confused');
 
-        const returnDelay = emotionAfter === 'meditating' ? 5000 : 3000;
-        const returnTo = this.state.isOpen ? 'happy' : 'idle';
-        this.scheduleEmotionReturn(returnTo, returnDelay);
+        this.addMessage(
+          "I'm sorry, something went wrong on my end. Please try rephrasing your question. 🔧",
+          'bot'
+        );
+        this.scheduleEmotionReturn('idle', 4000);
+      }
+    },
 
-        if (returnTo === 'happy') {
-          const idleTimer = setTimeout(() => {
-            if (!this.state.isTyping && this.state.emotion === 'happy') this.setEmotion('idle');
-          }, returnDelay + 3000);
-          this.state.emotionTimers.push(idleTimer);
+    /**
+     * Create a bot message bubble ready for streaming content into.
+     */
+    _createStreamingMessage: function (messageId) {
+      const msgWrapper = document.createElement('div');
+      msgWrapper.className = 'suai-message-wrapper suai-message-bot';
+      msgWrapper.setAttribute('data-message-id', messageId);
+
+      const msgElement = document.createElement('div');
+      msgElement.className = 'suai-message suai-animate-in';
+
+      const avatarSrc = this.emotions[this.state.emotion] || this.emotions.idle;
+      msgElement.innerHTML = `
+        <div class="suai-message-avatar">
+          <img src="${avatarSrc}" alt="SUAi" />
+        </div>
+        <div class="suai-message-content suai-markdown-content"><span class="suai-stream-cursor"></span></div>
+      `;
+
+      msgWrapper.appendChild(msgElement);
+      this.elements.messages.appendChild(msgWrapper);
+      this.scrollToBottom();
+
+      const contentEl = msgElement.querySelector('.suai-message-content');
+      return { contentEl, wrapperEl: msgWrapper };
+    },
+
+    // ── Markdown Renderer ─────────────────────────────────
+
+    /**
+     * Lightweight markdown to HTML converter.
+     * Supports: bold, italic, inline code, code blocks, lists, links, blockquotes, paragraphs.
+     */
+    renderMarkdown: function (text) {
+      if (!text) return '';
+      let html = text;
+
+      // Code blocks (``` ... ```)
+      html = html.replace(/```(\w*)?\n([\s\S]*?)```/g, function (_, lang, code) {
+        return '<pre><code>' + code.replace(/</g, '&lt;').replace(/>/g, '&gt;').trim() + '</code></pre>';
+      });
+
+      // Inline code
+      html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Bold
+      html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+      html = html.replace(/__(.+?)__/g, '<strong>$1</strong>');
+
+      // Italic
+      html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+      html = html.replace(/_(.+?)_/g, '<em>$1</em>');
+
+      // Links
+      html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+      // Blockquotes
+      html = html.replace(/^> (.+)$/gm, '<blockquote>$1</blockquote>');
+
+      // Unordered lists
+      html = html.replace(/^[\-\*] (.+)$/gm, '<li>$1</li>');
+      html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
+
+      // Ordered lists
+      html = html.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+
+      // Paragraphs (double newline)
+      html = html.replace(/\n\n/g, '</p><p>');
+      html = html.replace(/\n/g, '<br>');
+
+      // Wrap in paragraph if not already wrapped
+      if (!html.startsWith('<')) {
+        html = '<p>' + html + '</p>';
+      }
+
+      return html;
+    },
+
+    // ── Suggestions ───────────────────────────────────────
+
+    /**
+     * Parse the <suggestions> block from the bot response.
+     */
+    _parseSuggestions: function (text) {
+      const match = text.match(/<suggestions>\s*(\[.*?\])\s*<\/suggestions>/s);
+      let suggestions = [];
+      let cleanText = text;
+
+      if (match) {
+        try {
+          suggestions = JSON.parse(match[1]);
+        } catch (e) {
+          console.warn('SUAi: failed to parse suggestions', e);
         }
-      }, 1000);
+        cleanText = text.replace(/<suggestions>[\s\S]*?<\/suggestions>/g, '').trim();
+      }
+
+      return { cleanText, suggestions };
+    },
+
+    /**
+     * Strip suggestions block for display during streaming.
+     */
+    _stripSuggestions: function (text) {
+      return text.replace(/<suggestions>[\s\S]*$/g, '').trim();
+    },
+
+    /**
+     * Render suggestion pill buttons below a bot message.
+     */
+    _addSuggestionPills: function (wrapperEl, suggestions) {
+      // Remove any previous suggestion containers in the chat
+      const oldSuggestions = this.elements.messages.querySelectorAll('.suai-suggestions-container');
+      oldSuggestions.forEach(el => el.remove());
+
+      const container = document.createElement('div');
+      container.className = 'suai-suggestions-container';
+
+      suggestions.forEach(text => {
+        const pill = document.createElement('button');
+        pill.className = 'suai-suggestion-pill';
+        pill.type = 'button';
+        pill.textContent = text;
+        pill.addEventListener('click', () => {
+          container.remove();
+          this.elements.input.value = text;
+          this.handleSendMessage();
+        });
+        container.appendChild(pill);
+      });
+
+      wrapperEl.after(container);
+    },
+
+    // ── Feedback ──────────────────────────────────────────
+
+    /**
+     * Add thumbs up/down feedback buttons below a bot message.
+     */
+    _addFeedbackButtons: function (wrapperEl, messageId, messageText) {
+      const row = document.createElement('div');
+      row.className = 'suai-feedback-row';
+
+      const upBtn = document.createElement('button');
+      upBtn.className = 'suai-feedback-btn';
+      upBtn.type = 'button';
+      upBtn.innerHTML = '👍';
+      upBtn.setAttribute('aria-label', 'Helpful');
+
+      const downBtn = document.createElement('button');
+      downBtn.className = 'suai-feedback-btn';
+      downBtn.type = 'button';
+      downBtn.innerHTML = '👎';
+      downBtn.setAttribute('aria-label', 'Not helpful');
+
+      const handleFeedback = (rating, activeBtn, otherBtn) => {
+        activeBtn.classList.add(rating === 'up' ? 'suai-feedback-active-up' : 'suai-feedback-active-down');
+        otherBtn.classList.add('suai-feedback-disabled');
+        upBtn.disabled = true;
+        downBtn.disabled = true;
+
+        // Send feedback to backend
+        fetch(this.apiConfig.feedbackEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ messageId, rating, messageText })
+        }).catch(err => console.warn('SUAi: feedback send failed', err));
+      };
+
+      upBtn.addEventListener('click', () => handleFeedback('up', upBtn, downBtn));
+      downBtn.addEventListener('click', () => handleFeedback('down', downBtn, upBtn));
+
+      row.appendChild(upBtn);
+      row.appendChild(downBtn);
+      wrapperEl.appendChild(row);
     },
 
     scrollToBottom: function () {
